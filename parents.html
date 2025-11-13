@@ -1,16 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rastreamento do Ônibus Escolar - Prisma</title>
+  <title>Rastreamento do Ônibus Escolar - Unidade A</title>
 
   <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
     body {
@@ -64,7 +60,7 @@
 
   <header>
     <img src="LogoPrisma.png" alt="Logo Prisma" class="logo">
-    <h1>Localização do Ônibus Escolar</h1>
+    <h1>Localização do Ônibus Escolar - Unidade A</h1>
   </header>
 
   <div id="map"></div>
@@ -78,30 +74,29 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-    // Config Firebase
+    // Firebase config BusTrackingLilah (Unidade A)
     const firebaseConfig = {
-      apiKey: "AIzaSyCmRTx7t2B6V1tyTfAj_kiU7PBpTW1NEWg",
-      authDomain: "bustracking-d8b31.firebaseapp.com",
-      databaseURL: "https://bustracking-d8b31-default-rtdb.firebaseio.com/",
-      projectId: "bustracking-d8b31",
-      storageBucket: "bustracking-d8b31.firebasestorage.app",
-      messagingSenderId: "74182455484",
-      appId: "1:74182455484:web:613d9f632fa81a6ff3e0b9"
+      apiKey: "AIzaSyAO-Ln_NLKEQlwRb70SomMhHDrc5X-r7BI",
+      authDomain: "bustrackinglilah.firebaseapp.com",
+      databaseURL: "https://bustrackinglilah-default-rtdb.firebaseio.com",
+      projectId: "bustrackinglilah",
+      storageBucket: "bustrackinglilah.firebasestorage.app",
+      messagingSenderId: "108193062408",
+      appId: "1:108193062408:web:acb8ffc28d1c811572bbbd"
     };
 
-    // Inicializa Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
     // Inicializa mapa
-    const map = L.map('map').setView([-23.55, -46.63], 13); // centro SP
+    const map = L.map('map').setView([-23.55, -46.63], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
     // Ícone de alfinete
     const busIcon = L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // alfinete vermelho
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
       iconSize: [40, 40],
       iconAnchor: [20, 40]
     });
@@ -109,31 +104,25 @@
     let busMarker = null;
     const infoEl = document.getElementById('info');
 
-    // Firebase reference
-    const busRef = ref(db, 'onibus/localizacao');
+    // Firebase reference para Unidade A
+    const busRef = ref(db, 'onibus/unidadeA/localizacao');
 
     // Atualização em tempo real
     onValue(busRef, (snapshot) => {
       const data = snapshot.val();
-      console.log("Dados recebidos do Firebase:", data);
-
       if (data && data.latitude != null && data.longitude != null) {
         const lat = data.latitude;
         const lng = data.longitude;
         const updated = data.atualizadoEm;
 
         if (!busMarker) {
-          // Cria o marcador e centraliza no mapa
           busMarker = L.marker([lat, lng], { icon: busIcon }).addTo(map);
           map.setView([lat, lng], 15);
         } else {
-          // Atualiza posição do marcador
           busMarker.setLatLng([lat, lng]);
         }
 
-        // Movimenta mapa suavemente para o marcador
         map.flyTo([lat, lng], 15, { animate: true });
-
         infoEl.textContent = `📍 Última atualização: ${updated}`;
       } else {
         infoEl.textContent = "Sem dados de localização no momento.";
