@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Envio de Localização - Ônibus Escolar</title>
+  <style>
+    body {
+      font-family: "Poppins", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      color: #1e88e5;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #333;
+      padding: 10px 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Envio Automático da Localização do Ônibus</h1>
+  <div id="status">Aguardando GPS...</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+    // Config Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmRTx7t2B6V1tyTfAj_kiU7PBpTW1NEWg",
+      authDomain: "bustracking-d8b31.firebaseapp.com",
+      databaseURL: "https://bustracking-d8b31-default-rtdb.firebaseio.com/",
+      projectId: "bustracking-d8b31",
+      storageBucket: "bustracking-d8b31.firebasestorage.app",
+      messagingSenderId: "74182455484",
+      appId: "1:74182455484:web:613d9f632fa81a6ff3e0b9"
+    };
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const statusEl = document.getElementById("status");
+
+    // Verifica se o navegador suporta geolocalização
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const timestamp = new Date().toLocaleString();
+
+          // Envia para o Firebase
+          set(ref(db, 'onibus/localizacao'), {
+            latitude: lat,
+            longitude: lng,
+            atualizadoEm: timestamp
+          });
+
+          statusEl.textContent = `📍 Localização enviada: ${lat.toFixed(5)}, ${lng.toFixed(5)} (Atualizado: ${timestamp})`;
+          console.log("Localização enviada:", lat, lng);
+        },
+        (error) => {
+          console.error("Erro ao obter localização:", error);
+          statusEl.textContent = `❌ Erro ao obter localização: ${error.message}`;
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
+      );
+    } else {
+      alert("Seu navegador não suporta geolocalização.");
+      statusEl.textContent = "❌ GPS não suportado neste dispositivo.";
+    }
+  </script>
+</body>
+</html>
