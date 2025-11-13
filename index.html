@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Envio de Localização - Ônibus Escolar</title>
+  <title>Envio de Localização - Ônibus Unidade A</title>
   <style>
     body {
       font-family: "Poppins", Arial, sans-serif;
@@ -18,6 +18,7 @@
 
     h1 {
       color: #1e88e5;
+      text-align: center;
     }
 
     #status {
@@ -28,27 +29,28 @@
       background: white;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <h1>Envio Automático da Localização do Ônibus</h1>
+  <h1>Envio Automático da Localização - Unidade A</h1>
   <div id="status">Aguardando GPS...</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-    // Config Firebase
+    // Config Firebase da Unidade A (BusTrackingLilah)
     const firebaseConfig = {
-      apiKey: "AIzaSyCmRTx7t2B6V1tyTfAj_kiU7PBpTW1NEWg",
-      authDomain: "bustracking-d8b31.firebaseapp.com",
-      databaseURL: "https://bustracking-d8b31-default-rtdb.firebaseio.com/",
-      projectId: "bustracking-d8b31",
-      storageBucket: "bustracking-d8b31.firebasestorage.app",
-      messagingSenderId: "74182455484",
-      appId: "1:74182455484:web:613d9f632fa81a6ff3e0b9"
+      apiKey: "AIzaSyAO-Ln_NLKEQlwRb70SomMhHDrc5X-r7BI",
+      authDomain: "bustrackinglilah.firebaseapp.com",
+      databaseURL: "https://bustrackinglilah-default-rtdb.firebaseio.com",
+      projectId: "bustrackinglilah",
+      storageBucket: "bustrackinglilah.firebasestorage.app",
+      messagingSenderId: "108193062408",
+      appId: "1:108193062408:web:acb8ffc28d1c811572bbbd"
     };
 
     // Inicializa Firebase
@@ -57,7 +59,9 @@
 
     const statusEl = document.getElementById("status");
 
-    // Verifica se o navegador suporta geolocalização
+    // Caminho fixo para Unidade A
+    const path = `onibus/unidadeA/localizacao`;
+
     if (navigator.geolocation) {
       navigator.geolocation.watchPosition(
         (position) => {
@@ -65,19 +69,22 @@
           const lng = position.coords.longitude;
           const timestamp = new Date().toLocaleString();
 
-          // Envia para o Firebase
-          set(ref(db, 'onibus/localizacao'), {
+          // Envia para Firebase
+          set(ref(db, path), {
             latitude: lat,
             longitude: lng,
             atualizadoEm: timestamp
+          }).then(() => {
+            statusEl.textContent = `Localização enviada: ${lat.toFixed(5)}, ${lng.toFixed(5)} — ${timestamp}`;
+            console.log('Localização enviada Unidade A', lat, lng);
+          }).catch(err => {
+            statusEl.textContent = `❌ Erro ao enviar: ${err.message}`;
+            console.error(err);
           });
-
-          statusEl.textContent = `📍 Localização enviada: ${lat.toFixed(5)}, ${lng.toFixed(5)} (Atualizado: ${timestamp})`;
-          console.log("Localização enviada:", lat, lng);
         },
         (error) => {
-          console.error("Erro ao obter localização:", error);
-          statusEl.textContent = `❌ Erro ao obter localização: ${error.message}`;
+          console.error("Erro GPS:", error);
+          statusEl.textContent = `❌ Erro GPS: ${error.message}`;
         },
         { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
       );
